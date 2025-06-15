@@ -1,7 +1,25 @@
 import 'package:flutter/material.dart';
 
-class SignupPage extends StatelessWidget {
+class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
+
+  @override
+  State<SignupPage> createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,61 +28,93 @@ class SignupPage extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Image(
-                image: AssetImage('assets/images/chiqi_icon.png'),
-                height: 80,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                "Create Your Account",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF7B5842), // Cocoa Brown
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                const Image(
+                  image: AssetImage('assets/images/chiqi_icon.png'),
+                  height: 80,
                 ),
-              ),
-              const SizedBox(height: 32),
-
-              // Name
-              _buildTextField(label: "Full Name", icon: Icons.person),
-
-              // Email
-              const SizedBox(height: 16),
-              _buildTextField(label: "Email Address", icon: Icons.email),
-
-              // Password
-              const SizedBox(height: 16),
-              _buildTextField(label: "Password", icon: Icons.lock, obscure: true),
-
-              const SizedBox(height: 32),
-
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFE36A2E), // Fox Orange
-                  padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                const SizedBox(height: 24),
+                const Text(
+                  "Create Your Account",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF7B5842),
                   ),
                 ),
-                onPressed: () {
-                  // Handle signup
-                },
-                child: const Text("Sign Up",
-                    style: TextStyle(color: Colors.white, fontSize: 16)),
-              ),
+                const SizedBox(height: 32),
 
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Back to login
-                },
-                child: const Text("Already have an account? Log in",
-                    style: TextStyle(color: Color(0xFF7B5842))),
-              ),
-            ],
+                // Name
+                _buildTextField(
+                  controller: _nameController,
+                  label: "Full Name",
+                  icon: Icons.person,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Name is required';
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // Email
+                _buildTextField(
+                  controller: _emailController,
+                  label: "Email Address",
+                  icon: Icons.email,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Email is required';
+                    if (!value.contains('@')) return 'Enter a valid email';
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // Password
+                _buildTextField(
+                  controller: _passwordController,
+                  label: "Password",
+                  icon: Icons.lock,
+                  obscure: true,
+                  validator: (value) {
+                    if (value == null || value.length < 6) return 'Min 6 characters';
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 32),
+
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFE36A2E),
+                    padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      // Trigger signup logic
+                      debugPrint('Signup with: ${_nameController.text}, ${_emailController.text}');
+                    }
+                  },
+                  child: const Text("Sign Up", style: TextStyle(color: Colors.white, fontSize: 16)),
+                ),
+
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    "Already have an account? Log in",
+                    style: TextStyle(color: Color(0xFF7B5842)),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -72,12 +122,16 @@ class SignupPage extends StatelessWidget {
   }
 
   Widget _buildTextField({
+    required TextEditingController controller,
     required String label,
     required IconData icon,
     bool obscure = false,
+    String? Function(String?)? validator,
   }) {
-    return TextField(
+    return TextFormField(
+      controller: controller,
       obscureText: obscure,
+      validator: validator,
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: Color(0xFF7B5842)),
         labelText: label,
