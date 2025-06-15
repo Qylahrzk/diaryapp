@@ -141,10 +141,11 @@ class _HomePageState extends State<HomePage> {
                 margin: const EdgeInsets.all(10),
                 child: ListTile(
                     leading: CircleAvatar(
-                              child: Image.asset('assets/images/happy.gif'),
                               backgroundColor: Colors.tealAccent,
+                              child: Image.asset('assets/images/happy.gif'),
                     ),
                     title: Text(_diaries[index]['feeling']),
+                    // ignore: prefer_interpolation_to_compose_strings
                     subtitle: Text(_diaries[index]['description'] + '\n\n'+ _diaries[index]['createdAt']),
                     trailing: SizedBox(
                       width: 100,
